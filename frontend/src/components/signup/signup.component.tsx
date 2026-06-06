@@ -14,6 +14,7 @@ import {
 } from "../../redux/apis/otp.verify.api";
 import { useRegisterUserMutation } from "../../redux/apis/auth.api";
 import { useNavigate } from "react-router-dom";
+import { WandSparkles, BookOpen, UsersRound } from "lucide-react";
 
 interface IRegisterInfo {
   name: string;
@@ -231,23 +232,125 @@ const SignUpComponent = () => {
     toast.error("Google login failed. Please try again.");
   };
 
+  const handleResendOtp = async () => {
+    if (!registerInfo) return;
+    setIsBusy(true);
+    try {
+      const res = await emailVerify({
+        name: registerInfo.name,
+        email: registerInfo.email,
+      }).unwrap();
+      if (res?.data) {
+        const { expiresAt } = res.data;
+        setExpiredAt(new Date(expiresAt).getTime());
+        toast.success("OTP resent successfully!");
+        setCooldown(60);
+      }
+    } catch {
+      toast.error("Failed to resend OTP. Please try again.");
+    } finally {
+      setIsBusy(false);
+    }
+  };
+
+  const handleGoogleLoginSuccess = async (
+    credentialResponse: CredentialResponse
+  ) => {
+    setIsBusy(true);
+    try {
+      const res = await googleLogin({
+        token: credentialResponse.credential,
+      }).unwrap();
+      if (res?.data?.accessToken) {
+        toast.success("User registered/logged in successfully!");
+        storeUserInfo({ accessToken: res.data.accessToken });
+        navigate("/");
+      }
+    } catch {
+      toast.error("Google authentication failed. Please try again.");
+    } finally {
+      setIsBusy(false);
+    }
+  };
+
   return (
     <div className="min-h-screen w-full flex flex-col items-center justify-center bg-slate-50 dark:bg-slate-950 px-4 py-8 sm:py-12 relative overflow-x-hidden text-slate-900 dark:text-slate-100 box-border">
       <div className="absolute top-[-10%] left-[-10%] w-96 h-96 bg-blue-600/20 rounded-full blur-[120px] pointer-events-none" />
       <div className="absolute bottom-[-10%] right-[-10%] w-96 h-96 bg-indigo-600/20 rounded-full blur-[120px] pointer-events-none" />
 
-      <div className="flex w-full max-w-md flex-col justify-center py-6 relative z-10 px-2 sm:px-4 min-w-0 box-border">
-        <div className="sm:mx-auto sm:w-full mb-6">
-          <h2 className="text-center text-3xl sm:text-5xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-indigo-400 drop-shadow-sm">
+      <div className="flex w-full max-w-md md:max-w-5xl flex-col justify-center py-6 relative z-10 px-2 sm:px-4 min-w-0 box-border">
+        <div className="sm:mx-auto sm:w-full sm:max-w-md mb-8">
+          <h2 className="text-center text-4xl sm:text-5xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-indigo-400 drop-shadow-sm">
             STORY SPARK AI
           </h2>
         </div>
 
         {/* UPDATED: Structured layout classes to lock down maximum inner boundary constraints */}
         <div className="bg-slate-800/60 backdrop-blur-xl border border-slate-700/50 rounded-2xl p-5 sm:p-8 shadow-2xl w-full min-w-0 overflow-hidden box-border">
-          <h3 className="text-center text-xl sm:text-2xl font-bold tracking-tight text-slate-200">
+          <h3 className="text-center text-xl sm:text-2xl font-bold tracking-tight text-slate-200"></h3>
+          <div className="flex flex-col md:flex-row justify-center items-center md:items-stretch gap-8 md:gap-12 w-full">
+        
+                <div className="hidden md:flex flex-col gap-5 md:w-1/2 justify-center">
+                  <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-400 to-purple-700 bg-clip-text text-transparent">
+                    
+                    Turns Ideas into
+                    <br /> 
+                    unforgotable stories
+                    
+                    </h1>
+                  <p>AI powered storytelling that helps you
+                      <br />            
+                     create connect inspire.</p>
+        
+                     <div className="flex justify-center items-center gap-6 border border-gray-300 rounded-2xl bg-slate-50 dark:bg-slate-800 dark:text-gray-400">
+                      <div>
+                        <WandSparkles className="text-violet-600"/>
+                      </div>
+                      <div>
+                        <h1 className="font-bold">Smart writing</h1>
+                        <p>AI that understands your ideas</p>
+                      </div>
+                     </div>
+        
+        
+                     <div className="flex justify-center items-center gap-6 border border-gray-300 rounded-2xl bg-slate-50 dark:bg-slate-800 dark:text-gray-400">
+                      <div>
+                        <BookOpen className="text-violet-600"/>
+                      </div>
+                      <div>
+                        <h1 className="font-bold">Endless Creativity</h1>
+                        <p>Stories that captivate and inspire</p>
+                      </div>
+                     </div>
+        
+        
+                     <div className="flex justify-center items-center gap-6 border border-gray-300 rounded-2xl bg-slate-50 dark:bg-slate-800 dark:text-gray-400">
+                      <div>
+                        <UsersRound className="text-violet-600"/>
+                      </div>
+                      <div>
+                        <h1 className="font-bold">Built for everyone</h1>
+                        <p>Writers, Creaters and dreamers</p>
+                      </div>
+                     </div>
+                     <div className="border border-gray-300 p-4 rounded-2xl bg-slate-50 dark:bg-slate-800 dark:text-gray-400">
+                        Create, edit, and generate engaging multiple story
+                        <br />
+                        variations from a single prompt.
+                        <br />                
+                        Perfect for writers, creators, and enthusiasts 
+                        <br />
+                        exploring the future of fiction.
+                     </div>
+                </div>
+                <div className="w-full md:w-1/2 max-w-md rounded-3xl border border-slate-200 dark:border-slate-700/50 bg-slate-50 dark:bg-slate-800/60 backdrop-blur-xl p-5 sm:p-8 shadow-2xl">
+
+          {" "}
+          <h3 className="text-center text-2xl md:text-3xl font-bold tracking-tight text-slate-800 dark:text-slate-100">
+            {" "}
             {showOtpField ? "Verify Your Email" : "Create Account"}
           </h3>
+
           {!showOtpField && (
             <p className="mt-2 mb-6 text-center text-xs sm:text-sm text-slate-400 px-1">
               Join StorySparkAI and begin your creative journey.
@@ -456,6 +559,8 @@ const SignUpComponent = () => {
             </div>
           )}
         </div>
+      </div>
+      </div>
       </div>
 
       <Toaster position="top-right" reverseOrder={false} />
